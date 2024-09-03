@@ -7,6 +7,8 @@ import {
   useMemo,
   useState,
 } from "react";
+import {getToken, saveToken, removeToken} from '../tools/apiToken';
+
 
 export type AuthenticationState =
   | {
@@ -31,8 +33,13 @@ export const AuthenticationContext = createContext<Authentication | undefined>(
 export const AuthenticationProvider: React.FC<PropsWithChildren> = ({
   children,
 }) => {
+
+  const authenticationToken = getToken();
+
   const [state, setState] = useState<AuthenticationState>({
-    isAuthenticated: false,
+    isAuthenticated: !!authenticationToken,
+    token: authenticationToken ?? '',
+    userId: authenticationToken ? jwtDecode<{ id: string }>(authenticationToken).id : '',
   });
 
   const authenticate = useCallback(
@@ -42,12 +49,15 @@ export const AuthenticationProvider: React.FC<PropsWithChildren> = ({
         token,
         userId: jwtDecode<{ id: string }>(token).id,
       });
+
+      saveToken(token);
     },
     [setState],
   );
 
   const signout = useCallback(() => {
     setState({ isAuthenticated: false });
+    removeToken();
   }, [setState]);
 
   const contextValue = useMemo(

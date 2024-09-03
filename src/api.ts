@@ -1,3 +1,4 @@
+import { removeToken } from './tools/apiToken';
 import {
   CreateCommentResponse,
   GetMemeCommentsResponse,
@@ -22,6 +23,8 @@ export class NotFoundError extends Error {
 
 function checkStatus(response: Response) {
   if (response.status === 401) {
+    removeToken();
+    window.location.href = '/login';
     throw new UnauthorizedError();
   }
   if (response.status === 404) {
