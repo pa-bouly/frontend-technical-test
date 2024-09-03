@@ -68,6 +68,7 @@ function CreateMemePage() {
     return {
       pictureUrl: picture.url,
       texts,
+      onTextsChange: setTexts,
     };
   }, [picture, texts]);
 
@@ -84,6 +85,7 @@ function CreateMemePage() {
         duration: 3000,
         isClosable: true,
       });
+
       // Redirect to the memes feed page
       navigate({
         to: '/',
@@ -126,7 +128,7 @@ function CreateMemePage() {
         <Box p={4} flexGrow={1} height={0} overflowY="auto">
           <VStack>
             {texts.map((text, index) => (
-              <Flex width="full">
+              <Flex key={index} width="full">
                 <Input
                   key={index}
                   value={text.content}

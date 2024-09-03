@@ -18,5 +18,12 @@ export interface InfiniteQuery<T> {
   data: Array<T>;
 }
 
+export interface DragMemeText {
+  type: string
+  id: string
+  top: number
+  left: number
+}
+
 export type MemesFeedPage = InfiniteQuery<MemeData>;
 export type CommentsFeedPage = InfiniteQuery<CommentWithAuthor>;

@@ -2,6 +2,8 @@ import { useDropzone } from "react-dropzone";
 import { MemePicture, MemePictureProps } from "./meme-picture";
 import { AspectRatio, Box, Button, Flex, Icon, Text } from "@chakra-ui/react";
 import { Image, Pencil } from "@phosphor-icons/react";
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
 
 export type MemeEditorProps = {
   onDrop: (file: File) => void;
@@ -36,7 +38,9 @@ function renderMemePicture(memePicture: MemePictureProps, open: () => void) {
         display: "none",
       },
     }}>
-      <MemePicture {...memePicture} />
+      <DndProvider backend={HTML5Backend}>
+        <MemePicture {...memePicture} canDragTexts={true}/>
+      </DndProvider>
       <Button
         className="change-picture-button"
         leftIcon={<Icon as={Pencil} boxSize={4} />}

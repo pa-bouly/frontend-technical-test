@@ -4,6 +4,8 @@ import { MemeComments } from './meme-comments';
 import { MemePicture } from './meme-picture';
 import React from 'react';
 import { GetUserByIdResponse, MemeResponseData } from '../types/ApiTypes';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
 export type MemeCardProps = {
   meme: MemeResponseData;
@@ -12,7 +14,12 @@ export type MemeCardProps = {
   onNewCommentAdded: () => void;
 };
 
-export const MemeCard: React.FC<MemeCardProps> = ({ meme, author, token, onNewCommentAdded }) => {
+export const MemeCard: React.FC<MemeCardProps> = ({
+  meme,
+  author,
+  token,
+  onNewCommentAdded,
+}) => {
   return (
     <VStack key={meme.id} p={4} width="full" align="stretch">
       <Flex justifyContent="space-between" alignItems="center">
@@ -32,11 +39,15 @@ export const MemeCard: React.FC<MemeCardProps> = ({ meme, author, token, onNewCo
           {format(meme.createdAt)}
         </Text>
       </Flex>
-      <MemePicture
-        pictureUrl={meme.pictureUrl}
-        texts={meme.texts}
-        dataTestId={`meme-picture-${meme.id}`}
-      />
+
+      <DndProvider backend={HTML5Backend}>
+        <MemePicture
+          pictureUrl={meme.pictureUrl}
+          texts={meme.texts}
+          dataTestId={`meme-picture-${meme.id}`}
+        />
+      </DndProvider>
+
       <Box>
         <Text fontWeight="bold" fontSize="medium" mb={2}>
           Description:{' '}
@@ -51,7 +62,12 @@ export const MemeCard: React.FC<MemeCardProps> = ({ meme, author, token, onNewCo
           </Text>
         </Box>
       </Box>
-      <MemeComments meme={meme} author={author} token={token} onNewCommentAdded={onNewCommentAdded}/>
+      <MemeComments
+        meme={meme}
+        author={author}
+        token={token}
+        onNewCommentAdded={onNewCommentAdded}
+      />
     </VStack>
   );
 };
