@@ -124,3 +124,28 @@ export async function createMemeComment(
     body: JSON.stringify({ content }),
   }).then((res) => checkStatus(res).json());
 }
+
+export async function createMeme(
+  token: string,
+  picture: File,
+  description: string,
+  texts: { content: string; x: number; y: number }[]
+) {
+  const formData = new FormData();
+  formData.append('picture', picture);
+  formData.append('description', description);
+
+  texts.forEach((text, index) => {
+    formData.append(`Texts[${index}][Content]`, text.content);
+    formData.append(`Texts[${index}][X]`, Math.floor(text.x).toString());
+    formData.append(`Texts[${index}][Y]`, Math.floor(text.y).toString());
+  });
+
+  return await fetch(`${BASE_URL}/memes`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  }).then((res) => checkStatus(res).json());
+}
