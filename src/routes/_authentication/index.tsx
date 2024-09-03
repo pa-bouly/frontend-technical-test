@@ -53,6 +53,16 @@ export const MemeFeedPage: React.FC = () => {
     rootMargin: '0px 0px 400px 0px',
   });
 
+  const onNewCommentAdded = (memeId: string) => {
+    memes?.pages.forEach((page) => {
+      page.data.forEach((memeData) => {
+        if (memeData.meme.id === memeId) {
+          memeData.meme.commentsCount += 1;
+        }
+      });
+    })
+  };
+
   if (isLoading) {
     return <Loader data-testid="meme-feed-loader" />;
   }
@@ -71,6 +81,7 @@ export const MemeFeedPage: React.FC = () => {
               meme={memeData.meme}
               author={memeData.author}
               token={token}
+              onNewCommentAdded={() => onNewCommentAdded(memeData.meme.id)}
             />
           ))
         )}

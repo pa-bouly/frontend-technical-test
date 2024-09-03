@@ -24,18 +24,20 @@ import {
   GetUserByIdResponse,
   MemeResponseData,
 } from '../types/ApiTypes';
-
+import { Loader } from './loader';
 
 export type MemeCommentsProps = {
   meme: MemeResponseData;
   author: GetUserByIdResponse;
   token: string;
+  onNewCommentAdded: () => void;
 };
 
 export const MemeComments: React.FC<MemeCommentsProps> = ({
   meme,
   author,
   token,
+  onNewCommentAdded
 }) => {
   const [openedCommentSection, setOpenedCommentSection] = useState<
     string | null
@@ -47,6 +49,7 @@ export const MemeComments: React.FC<MemeCommentsProps> = ({
     hasNextPage,
     isLoading,
     isFetching,
+    refetch,
   } = useInfiniteQuery<CommentsFeedPage>({
     getNextPageParam: (page) => {
       return page.nextPage;
@@ -82,13 +85,18 @@ export const MemeComments: React.FC<MemeCommentsProps> = ({
     queryKey: ['comments', meme.id],
   });
 
-  const [commentContent, setCommentContent] = useState<{
-    [key: string]: string;
-  }>({});
+  const [commentContent, setCommentContent] = useState('');
+  const [isNewCommentLoading, setIsNewCommentLoading] = useState(false);
 
   const { mutate } = useMutation({
     mutationFn: async (data: { memeId: string; content: string }) => {
+      setIsNewCommentLoading(true);
       await createMemeComment(token, data.memeId, data.content);
+
+      setCommentContent('');
+      await refetch();
+      setIsNewCommentLoading(false);
+      onNewCommentAdded();
     },
   });
 
@@ -124,10 +132,10 @@ export const MemeComments: React.FC<MemeCommentsProps> = ({
           <form
             onSubmit={(event) => {
               event.preventDefault();
-              if (commentContent[meme.id]) {
+              if (commentContent) {
                 mutate({
                   memeId: meme.id,
-                  content: commentContent[meme.id],
+                  content: commentContent,
                 });
               }
             }}
@@ -144,17 +152,24 @@ export const MemeComments: React.FC<MemeCommentsProps> = ({
               <Input
                 placeholder="Type your comment here..."
                 onChange={(event) => {
-                  setCommentContent({
-                    ...commentContent,
-                    [meme.id]: event.target.value,
-                  });
+                  setCommentContent(event.target.value);
                 }}
-                value={commentContent[meme.id]}
+                data-testid={`meme-comment-input-${meme.id}`}
+                value={commentContent}
               />
             </Flex>
+            {isNewCommentLoading ? (
+              <Flex justifyContent={'center'} mt={2}>
+                <Loader data-testid="new-comment-loader" />
+              </Flex>
+            ) : null}
           </form>
         </Box>
-        <VStack align="stretch" spacing={4} data-testid={`meme-comments-list-${meme.id}`}>
+        <VStack
+          align="stretch"
+          spacing={4}
+          data-testid={`meme-comments-list-${meme.id}`}
+        >
           {comments?.pages.map((page) =>
             page.data.map((comment) => (
               <MemeComment
@@ -174,7 +189,6 @@ export const MemeComments: React.FC<MemeCommentsProps> = ({
               Load more comments
             </Button>
           )}
-
         </VStack>
       </Collapse>
     </React.Fragment>

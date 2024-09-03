@@ -9,9 +9,10 @@ export type MemeCardProps = {
   meme: MemeResponseData;
   author: GetUserByIdResponse;
   token: string;
+  onNewCommentAdded: () => void;
 };
 
-export const MemeCard: React.FC<MemeCardProps> = ({ meme, author, token }) => {
+export const MemeCard: React.FC<MemeCardProps> = ({ meme, author, token, onNewCommentAdded }) => {
   return (
     <VStack key={meme.id} p={4} width="full" align="stretch">
       <Flex justifyContent="space-between" alignItems="center">
@@ -50,7 +51,7 @@ export const MemeCard: React.FC<MemeCardProps> = ({ meme, author, token }) => {
           </Text>
         </Box>
       </Box>
-      <MemeComments meme={meme} author={author} token={token} />
+      <MemeComments meme={meme} author={author} token={token} onNewCommentAdded={onNewCommentAdded}/>
     </VStack>
   );
 };
