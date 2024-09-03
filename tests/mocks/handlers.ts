@@ -1,4 +1,4 @@
-import { http, HttpResponse } from "msw";
+import { DefaultBodyType, http, HttpResponse } from "msw";
 
 const users = {
   dummy_user_id_1: {
@@ -102,10 +102,43 @@ export const handlers = [
       const memeComments = comments.filter(
         (comment) => comment.memeId === params.id,
       );
+
       return HttpResponse.json({
         total: memeComments.length,
         pageSize: memeComments.length,
         results: memeComments,
+      });
+    },
+  ),
+  http.post<{ id: string }>(
+    'https://fetestapi.int.mozzaik365.net/api/memes/:id/comments',
+    async ({ params, request }) => {
+      const payload = await request.json() as { content: string };
+      
+      const newComment = {
+        id: "dummy_comment_id_"+(comments.length+1),
+        memeId: params.id,
+        authorId: "dummy_user_id_1",
+        content: payload?.content,
+        createdAt: new Date().toISOString(),
+      }
+
+      comments.push(newComment)
+      
+      const memeToUpdate = memes.find(meme => meme.id === params.id)
+
+      if (memeToUpdate) {
+        memeToUpdate.commentsCount += 1
+      }
+
+      memes[0].commentsCount += 1;
+
+      return HttpResponse.json({
+        id: newComment.id,
+        memeId: newComment.memeId,
+        authorId: newComment.authorId,
+        content: newComment.content,
+        createdAt: newComment.createdAt,
       });
     },
   ),
